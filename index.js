@@ -1,4 +1,4 @@
-console.log('======= ghe_slackutil =======');
+console.log('======= slackutil wrapper functions =======');
 
 var request = require('request');
 
@@ -25,55 +25,6 @@ var Slackroom = function(token) {
 
   //only physically pull new data from Slack API's after 60 seconds, else use current data
   this.buffertime = 60000;
-
-  this.set_userObj = function(obj) {
-    this.userObj = obj;
-
-    //update hash tables
-    for (var idx in obj.members) {
-
-      var rec = obj.members[idx];
-
-      var key = rec.id;
-      var name = rec.real_name;
-      var email = rec.profile.email;
-      var img32 = rec.profile.image_32;
-      var img48 = rec.profile.image_48;
-
-      if(typeof key == 'undefined') key = '';
-      if (key.length < 1) key = '';
-
-      if(typeof name == 'undefined') name = '';
-      if (name.length < 1) name = '';
-
-      if(typeof email == 'undefined') email = '';
-      if (email.length < 1) email = '';
-
-      this.username[key] = name;
-      this.useremail[key] = email;
-      this.userimg32[key] = img32;
-      this.userimg48[key] = img48;
-    }
-
-  }
-
-  this.set_chanObj = function(obj) {
-    this.chanObj = obj;
-  }
-
-  this.set_chaninfoObj = function(channel, obj) {
-    this.chaninfoObj[channel] = obj;
-  }
-
-  this.bufferCurrent = function(t1) {
-    if (typeof t1 == 'undefined') t1 = 0;
-    var t2 = new Date().getTime();
-
-    if ((t2 - t1) < this.buffertime) {
-      return true;
-    }
-    else return false;
-  }
 
   this.getUsers = function(callback) {
 
@@ -249,6 +200,55 @@ var Slackroom = function(token) {
     if (str.indexOf('\n') >= 0) str = '';
 
     return str;
+  }
+
+  this.set_userObj = function(obj) {
+    this.userObj = obj;
+
+    //update hash tables
+    for (var idx in obj.members) {
+
+      var rec = obj.members[idx];
+
+      var key = rec.id;
+      var name = rec.real_name;
+      var email = rec.profile.email;
+      var img32 = rec.profile.image_32;
+      var img48 = rec.profile.image_48;
+
+      if(typeof key == 'undefined') key = '';
+      if (key.length < 1) key = '';
+
+      if(typeof name == 'undefined') name = '';
+      if (name.length < 1) name = '';
+
+      if(typeof email == 'undefined') email = '';
+      if (email.length < 1) email = '';
+
+      this.username[key] = name;
+      this.useremail[key] = email;
+      this.userimg32[key] = img32;
+      this.userimg48[key] = img48;
+    }
+
+  }
+
+  this.set_chanObj = function(obj) {
+    this.chanObj = obj;
+  }
+
+  this.set_chaninfoObj = function(channel, obj) {
+    this.chaninfoObj[channel] = obj;
+  }
+
+  this.bufferCurrent = function(t1) {
+    if (typeof t1 == 'undefined') t1 = 0;
+    var t2 = new Date().getTime();
+
+    if ((t2 - t1) < this.buffertime) {
+      return true;
+    }
+    else return false;
   }
 
   console.log('Slackroom instantiated');
