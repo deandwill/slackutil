@@ -1,4 +1,4 @@
-console.log('======= slackutil.js =======');
+console.log('======= ghe_slackutil =======');
 
 var request = require('request');
 
@@ -19,6 +19,12 @@ var Slackroom = function(token) {
   this.keywords    = Object.create(null);
 
   this.sortedChannelList = [];
+
+  //timestamp the last time each Slack object was last pulled
+  this.cachetime = {}
+
+  //only physically pull new data from Slack API's after 60 seconds, else use current data
+  this.buffertime = 60000;
 
   this.set_userObj = function(obj) {
     this.userObj = obj;
@@ -55,11 +61,27 @@ var Slackroom = function(token) {
     this.chanObj = obj;
   }
 
-  this.set_chaninfoObj = function(obj) {
-    this.chaninfoObj = obj;
+  this.set_chaninfoObj = function(channel, obj) {
+    this.chaninfoObj[channel] = obj;
+  }
+
+  this.bufferCurrent = function(t1) {
+    if (typeof t1 == 'undefined') t1 = 0;
+    var t2 = new Date().getTime();
+
+    if ((t2 - t1) < this.buffertime) {
+      return true;
+    }
+    else return false;
   }
 
   this.getUsers = function(callback) {
+
+    if (this.bufferCurrent(this.cachetime.getUsers)) return callback(this.userObj);
+
+    this.cachetime.getUsers = new Date().getTime();
+
+    console.log('getUsers: ' + new Date(this.cachetime.getUsers).toString());
 
     var xurl = { url: 'http://slack.com/api/users.list',
                  qs:  { token: this.token }
@@ -81,6 +103,12 @@ var Slackroom = function(token) {
 
   this.getChannels = function(callback) {
 
+    if (this.bufferCurrent(this.cachetime.getChannels)) return callback(this.chanObj);
+
+    this.cachetime.getChannels = new Date().getTime();
+
+    console.log('getChannels: ' + new Date(this.cachetime.getChannels).toString());
+
     var xurl = { url: 'http://slack.com/api/channels.list',
                qs:  { token: this.token }
                }
@@ -99,6 +127,16 @@ var Slackroom = function(token) {
   }
 
   this.getChaninfo = function(channelId, callback) {
+
+    if (this.bufferCurrent(this.cachetime['ci-' + channelId])) return callback(this.chaninfoObj[channelId]);
+
+    this.cachetime['ci-' + channelId] = new Date().getTime();
+
+    console.log('getChaninfo(' + channelId + '): ' + new Date(this.cachetime['ci-' + channelId]).toString());
+
+
+
+    //console.log('getChaninfo(' + channelId + '): ' + new Date().toString());
 
     var xurl = { url: 'http://slack.com/api/channels.info',
                qs:  { token: this.token,
@@ -121,9 +159,13 @@ var Slackroom = function(token) {
 
   this.getHistory = function(channelId, startTime, callback) {
 
-    var channelHistoryUrl = 'http://slack.com/api/channels.history';
+    if (this.bufferCurrent(this.cachetime[channelId])) return callback(this.histObj[channelId]);
 
-    var xurl = { url: channelHistoryUrl,
+    this.cachetime[channelId] = new Date().getTime();
+
+    console.log('getHistory(' + channelId + '): ' + new Date(this.cachetime[channelId]).toString());
+
+    var xurl = { url: 'http://slack.com/api/channels.history',
                qs:  { token: this.token,
                       channel: channelId,
                       oldest: startTime ? startTime : 0,
