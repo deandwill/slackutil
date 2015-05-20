@@ -1,4 +1,4 @@
-# ghe_slackutil
+# slackutil
 
 ## Example
 The code fragments below show how to create multiple room objects ( each Slack room requires a different api token )
