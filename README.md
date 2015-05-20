@@ -3,10 +3,10 @@
 ## Example
 The code fragments below show how to create multiple room objects ( each Slack room requires a different api token )
 and then access the user, channel and history information for that room
-Note: These methods ( ... getUsers(), getChannels(), getChaninfo(), getHistory() ... ) are all automatically buffered.
+Note: These methods ( ... getUsers(), getChannels(), getChaninfo(), getHistory() ... ) are all automatically cached.
 ie Info is initially pulled from from Slack, but any subsequent calls to these methods within a 60-second timeframe will return the existing data.
 ```javascript
-var ut = require('../ghe_slackutil’);
+var ut = require('../slackutil’);
 var toList = require('jsontolist');
 
 var room1 = new ut.Slackroom( slack-api-token-goes-here);
