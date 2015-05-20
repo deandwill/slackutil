@@ -147,9 +147,6 @@ var Slackroom = function(token) {
 
   this.set_histObj = function(channel, obj) {
     this.histObj[channel] = obj;
-  //}
-
-  //this.set_keywords = function(channel, obj) {
 
     var keywords  = Object.create(null);
 
